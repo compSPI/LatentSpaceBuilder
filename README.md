@@ -30,7 +30,7 @@ conda activate latent_space_builder
 Install the kernel.
 ```bash
 python -m ipykernel install --user --name latent_space_builder \ 
-	--display-name "Python (latent_space_builder)"
+--display-name "Python (latent_space_builder)"
 ```
 
 Exit the environment.
