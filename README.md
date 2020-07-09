@@ -51,7 +51,7 @@ Open the tutorial notebook ```latent_space_builder.ipynb```.
 
 Change the Python kernel to ```latent_space_builder```.
 
-Set ```dataset_filepath``` to the file containing the dataset.
+Set ```dataset_file``` to the file containing the dataset.
 
 ```python
 dataset_file = '../data/cspi_synthetic_dataset_diffraction_patterns_1024x1040.hdf5'
