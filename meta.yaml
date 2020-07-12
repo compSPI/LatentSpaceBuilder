@@ -1,0 +1,17 @@
+package:
+  name: latent-space-builder
+  version: 0.0.1
+
+source:
+  path: .
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+
+about:
+  home:

@@ -13,24 +13,25 @@ git clone https://github.com/compSPI/LatentSpaceBuilder.git
 Change the current working directory to the root of this repository.
 
 ```bash
-cd /path/to/LatentSpaceBuilder
+cd LatentSpaceBuilder
 ```
 
-Create the Python environment that has the dependencies required to run the code.
+Download from the Anaconda Cloud and install the Python environment that has the dependencies required to run the code.
 
 ```bash
-conda env create -f environment.yml
+conda env create compSPI/compSPI
 ```
 
 Activate the environment.
+
 ```bash
-conda activate latent_space_builder
+conda activate compSPI
 ```
 
 Install the kernel.
+
 ```bash
-python -m ipykernel install --user --name latent_space_builder \ 
---display-name "Python (latent_space_builder)"
+python -m ipykernel install --user --name compSPI --display-name "Python (compSPI)"
 ```
 
 Exit the environment.
@@ -49,9 +50,9 @@ jupyter notebook
 
 Open the tutorial notebook ```latent_space_builder.ipynb```.
 
-Change the Python kernel to ```latent_space_builder```.
+Change the Python kernel to ```compSPI```.
 
-Set ```dataset_file``` to the file containing the dataset.
+Set ```dataset_file``` to an HDF5 file containing the dataset.
 
 ```python
 dataset_file = '../data/cspi_synthetic_dataset_diffraction_patterns_1024x1040.hdf5'
@@ -59,16 +60,20 @@ dataset_file = '../data/cspi_synthetic_dataset_diffraction_patterns_1024x1040.hd
 
 Run the notebook.
 
+## Installation
+
+The project package can be installed by running the following command.
+
+```bash
+python setup.py install
+```
+
 ## Code structure
 
-The code for this repository is organized as follows:
+The relevant files and folders in this repository are described below:
 
 - ```README.md```: Highlights the usefulness of the Latent Space builder. 
 
-- ```latent_space_builder.ipynb```:  Provides a tutorial notebook for using the Latent Space builder.
+- ```latent_space_builder.ipynb```:  Provides a tutorial notebook for using the Latent Space Builder.
 
-- ```environment.yml```: Contains Python packages required to run the notebook.
-
-- ```src/```: Contains Python files required to run the notebook.
-
-- ```figures/```: Contains figures used in the repository.
+- ```latent_space_builder/```: Contains the Python file required to run the notebook.
