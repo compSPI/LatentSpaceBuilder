@@ -10,6 +10,7 @@ requirements = [
     'h5py>=2.10.0',
     'numpy>=1.19.0',
     'pyDiffMap>=0.2.0.1',
+    'kora>=0.4.14',
     'setuptools>=49.1.2'
 ]
 
