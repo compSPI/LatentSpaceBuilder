@@ -62,7 +62,9 @@ conda build .
 
 ## Uploading the code package to the compSPI organization in Anaconda Cloud
 
-While the command to build the code package (`conda build .`) is running, you should see a line that looks like:
+In order to upload the built code package to the compSPI organization in Anaconda Cloud, you need to be added to the compSPI organization. After you have been added to the compSPI organization, follow the next set of instructions to upload the code package.
+
+After you run the command to build the Conda code package, you should see a line that looks like:
 
 (on Mac OSX)
 ```bash 
