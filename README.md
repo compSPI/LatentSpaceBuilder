@@ -27,7 +27,6 @@ cd /path/to/LatentSpaceBuilder
 conda env create compSPI/compSPI
 conda activate compSPI
 python -m ipykernel install --user --name compSPI --display-name "Python (compSPI)"
-conda deactivate
 ```
 
 ## Running the code in Jupyter Notebook
