@@ -51,14 +51,16 @@ Set the variable ```dataset_file``` to an HDF5 file containing the dataset.
 
 Run the notebook.
 
-## Building the code package
+## Building the Conda code package
+
+The following command is used to build the Conda code package.
 
 ```bash
 cd LatentSpaceBuilder
 conda build .
 ```
 
-## Uploading the code package
+## Uploading the code package to the compSPI organization in Anaconda Cloud
 
 While the command to build the code package (`conda build .`) is running, you should see a line that looks like:
 
