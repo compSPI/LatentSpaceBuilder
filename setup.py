@@ -12,7 +12,7 @@ requirements = [
 ]
 
 setuptools.setup(
-    name="latent-space-builder", # Replace with your own username
+    name="latent-space-builder",
     version="0.0.1",
     author="Deeban Ramalingam",
     author_email="rdeeban@gmail.com",
