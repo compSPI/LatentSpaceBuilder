@@ -4,15 +4,15 @@ The Latent Space Builder builds the latent space for an image dataset.
 
 ## Downloading the code
 
-This command is used to download the code into your computer.
+This command is used to download the code onto your computer.
 
 ```bash
 git clone https://github.com/compSPI/LatentSpaceBuilder.git
 ```
 
-## Installing the code into your computer
+## Installing the code onto your computer
 
-This command is used to install the code into your computer.
+This command is used to install the code onto your computer.
 
 ```bash
 python setup.py install
@@ -20,7 +20,7 @@ python setup.py install
 
 ## Installing the code in Jupyter Notebook
 
-These commands are used to install the code into Jupyter Notebook.
+These commands are used to install the code onto Jupyter Notebook.
 
 ```bash
 cd /path/to/LatentSpaceBuilder
