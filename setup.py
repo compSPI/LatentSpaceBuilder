@@ -4,14 +4,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 requirements = [
-    'bokeh>=2.1.1',
-    'jupyterlab>=2.1.5',
-    'scikit-learn>=0.23.1',
-    'h5py>=2.10.0',
-    'numpy>=1.19.0',
-    'pyDiffMap>=0.2.0.1',
-    'kora>=0.4.14',
-    'setuptools>=49.1.2'
+    'setuptools',
+    'numpy',
+    'scikit-learn',
+    'h5py',
+    'pyDiffMap'
 ]
 
 setuptools.setup(

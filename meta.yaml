@@ -12,6 +12,9 @@ requirements:
 
   run:
     - python
+    - numpy
+    - scikit-learn
+    - h5py
 
 about:
-  home:
+  home: https://github.com/compSPI/LatentSpaceBuilder
