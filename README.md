@@ -10,6 +10,14 @@ This command is used to download the code into your computer.
 git clone https://github.com/compSPI/LatentSpaceBuilder.git
 ```
 
+## Installing the code into your computer
+
+This command is used to install the code into your computer.
+
+```bash
+python setup.py install
+```
+
 ## Installing the code in Jupyter Notebook
 
 These commands are used to install the code into Jupyter Notebook.
@@ -43,14 +51,6 @@ dataset_file = '../data/cspi_synthetic_dataset_diffraction_patterns_1024x1040.hd
 Set the variable ```dataset_file``` to an HDF5 file containing the dataset.
 
 Run the notebook.
-
-## Installing the code into your computer
-
-This command is used to install the code into your computer.
-
-```bash
-python setup.py install
-```
 
 ## Code structure
 
