@@ -12,9 +12,10 @@ git clone https://github.com/compSPI/LatentSpaceBuilder.git
 
 ## Installing the code on your computer
 
-This command is used to install the code on your computer.
+The following commands are used to install the code on your computer.
 
 ```bash
+cd /path/to/LatentSpaceBuilder
 python setup.py install --user
 ```
 
