@@ -1,0 +1,14 @@
+name: latent-space-builder
+channels:
+  - conda-forge
+  - omnia
+  - defaults
+dependencies:
+  - python=3.7
+  - jupyterlab
+  - scikit-learn
+  - h5py
+  - pip
+  - pip:
+    - numpy==1.19.0
+    - pyDiffMap
