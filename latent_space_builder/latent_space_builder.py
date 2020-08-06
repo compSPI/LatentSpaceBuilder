@@ -10,7 +10,7 @@ from pydiffmap.diffusion_map import DiffusionMap
 import h5py as h5
 
 
-def build_latent_space(dataset_file, image_type, target_type, latent_method, latent_dim, dataset_size, training_set_size, batch_size):
+def build_latent_space(dataset_file, image_type, target_type, latent_method, latent_dim, dataset_size, training_set_size, batch_size, n_shuffles = 2):
     # Check if batch_size divides dataset_size
     if dataset_size % batch_size != 0:
         raise Exception("batch_size {} must divide dataset_size {}".format(batch_size, dataset_size))
@@ -95,24 +95,23 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
             latent_model = []
             
             # Fit n_shuffles PCA models on randomly sampled training sets
-            n_shuffles = 2
             for i in range(n_shuffles):                
-                # Define the training set randomly sampled from dataset
-                training_set_idx = np.sort(np.random.choice(dataset_size, training_set_size, replace=False))
-                training_set = images_handle[training_set_idx]
+                # Define the training batch randomly sampled from training set
+                training_batch_idx = np.sort(np.random.choice(training_set_size, batch_size, replace=False))
+                training_batch = training_set[training_batch_idx]
 
-                # Vectorize the training set
-                training_set_vectors = training_set.reshape(training_set_size, h * w)
+                # Vectorize the training batch
+                training_batch_vectors = training_batch.reshape(batch_size, h * w)
 
-                # Rescale the training set
-                training_set_rescaled = minmax_rescale(training_set_vectors)
+                # Rescale the training batch
+                training_batch_rescaled = minmax_rescale(training_batch_vectors)
                 
                 # Fit PCA to the rescaled training set
                 latent_base_model = PCA(n_components=latent_dim)
                 tic = time.time()
-                latent_base_model.fit(training_set_rescaled)
+                latent_base_model.fit(training_batch_rescaled)
                 toc = time.time()
-                print("It takes {:.2f} seconds for Ensemble PCA base model to fit to the training set of shape {}.".format(toc-tic, training_set_rescaled.shape))
+                print("It takes {:.2f} seconds for Ensemble PCA base model to fit to the training batch of shape {}.".format(toc-tic, training_batch_rescaled.shape))
                 
                 # Add base model to ensemble
                 latent_model.append(latent_base_model)
@@ -152,9 +151,7 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
                         latent_vectors = latent_model[j].transform(image_batch_vectors_rescaled)
                     else:
                         latent_vectors += latent_model[j].transform(image_batch_vectors_rescaled)
-                    
-                latent_vectors /= n_shuffles
-                
+                                
                 toc = time.time()
                 print("It takes {:.2f} seconds for transforming a batch of {} image vectors.".format(toc-tic, image_batch_vectors_rescaled.shape))
                 total_time += toc - tic
