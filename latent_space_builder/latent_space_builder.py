@@ -90,6 +90,33 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
             
             print("It takes {:.2f} seconds total for Incremental PCA to fit to the training set of shape {}.".format(total_time, training_set_rescaled.shape))
         
+        elif latent_method == "ensemble_pca":
+            # Define an empty ensemble of base models
+            latent_model = []
+            
+            # Fit n_shuffles PCA models on randomly sampled training sets
+            n_shuffles = 2
+            for i in range(n_shuffles):                
+                # Define the training set randomly sampled from dataset
+                training_set_idx = np.sort(np.random.choice(dataset_size, training_set_size, replace=False))
+                training_set = images_handle[training_set_idx]
+
+                # Vectorize the training set
+                training_set_vectors = training_set.reshape(training_set_size, h * w)
+
+                # Rescale the training set
+                training_set_rescaled = minmax_rescale(training_set_vectors)
+                
+                # Fit PCA to the rescaled training set
+                latent_base_model = PCA(n_components=latent_dim)
+                tic = time.time()
+                latent_base_model.fit(training_set_rescaled)
+                toc = time.time()
+                print("It takes {:.2f} seconds for Ensemble PCA base model to fit to the training set of shape {}.".format(toc-tic, training_set_rescaled.shape))
+                
+                # Add base model to ensemble
+                latent_model.append(latent_base_model)
+        
         else:
             raise Exception("Unsupported latent method. Please provide one of the following: principal_component_analysis, diffusion_map")
         
@@ -102,27 +129,61 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
 
         # Create a new dataset for the latent vectors
         latent_vectors_handle = dataset_file_handle.create_dataset(latent_method, latent_vectors_shape, dtype='f')
-
-        # Apply latent method to batches of images in the dataset and add the resulting latent vectors into the dataset
-        total_time = 0
-        for i in range(n_batches):
-            # Get a batch of images
-            image_batch = images_handle[i * batch_size : (i + 1) * batch_size]
-            
-            # Reshape into image vectors
-            image_batch_vectors = image_batch.reshape(batch_size, h * w)
-            
-            # Rescale between 0 and 1
-            image_batch_vectors_rescaled = minmax_rescale(image_batch_vectors)
-            
-            # Transform the rescaled image vectors using the fit latent method into latent vectors
-            tic = time.time()
-            latent_vectors = latent_model.transform(image_batch_vectors_rescaled)
-            toc = time.time()
-            print("It takes {:.2f} seconds for transforming a batch of {} image vectors.".format(toc-tic, image_batch_vectors_rescaled.shape))
-            total_time += toc - tic
-            
-            # Add the latent vectors into the dataset
-            latent_vectors_handle[i * batch_size : (i + 1) * batch_size] = latent_vectors
         
-        print("It takes {:.2f} seconds total to transform the dataset of shape {}.".format(total_time, (dataset_size, h, w)))
+        if latent_method == "ensemble_pca":
+            # Apply latent method to batches of images in the dataset and add the resulting latent vectors into the dataset
+            total_time = 0
+            for i in range(n_batches):
+                # Get a batch of images
+                image_batch = images_handle[i * batch_size : (i + 1) * batch_size]
+
+                # Reshape into image vectors
+                image_batch_vectors = image_batch.reshape(batch_size, h * w)
+
+                # Rescale between 0 and 1
+                image_batch_vectors_rescaled = minmax_rescale(image_batch_vectors)
+
+                # Transform the rescaled image vectors using the fit latent method into latent vectors
+                tic = time.time()
+                
+                # Average the transformations produced by each base model in the ensemble
+                for j in range(n_shuffles):
+                    if j == 0:
+                        latent_vectors = latent_model[j].transform(image_batch_vectors_rescaled)
+                    else:
+                        latent_vectors += latent_model[j].transform(image_batch_vectors_rescaled)
+                    
+                latent_vectors /= n_shuffles
+                
+                toc = time.time()
+                print("It takes {:.2f} seconds for transforming a batch of {} image vectors.".format(toc-tic, image_batch_vectors_rescaled.shape))
+                total_time += toc - tic
+
+                # Add the latent vectors into the dataset
+                latent_vectors_handle[i * batch_size : (i + 1) * batch_size] = latent_vectors
+
+            print("It takes {:.2f} seconds total to transform the dataset of shape {}.".format(total_time, (dataset_size, h, w)))
+        else:
+            # Apply latent method to batches of images in the dataset and add the resulting latent vectors into the dataset
+            total_time = 0
+            for i in range(n_batches):
+                # Get a batch of images
+                image_batch = images_handle[i * batch_size : (i + 1) * batch_size]
+
+                # Reshape into image vectors
+                image_batch_vectors = image_batch.reshape(batch_size, h * w)
+
+                # Rescale between 0 and 1
+                image_batch_vectors_rescaled = minmax_rescale(image_batch_vectors)
+
+                # Transform the rescaled image vectors using the fit latent method into latent vectors
+                tic = time.time()
+                latent_vectors = latent_model.transform(image_batch_vectors_rescaled)
+                toc = time.time()
+                print("It takes {:.2f} seconds for transforming a batch of {} image vectors.".format(toc-tic, image_batch_vectors_rescaled.shape))
+                total_time += toc - tic
+
+                # Add the latent vectors into the dataset
+                latent_vectors_handle[i * batch_size : (i + 1) * batch_size] = latent_vectors
+
+            print("It takes {:.2f} seconds total to transform the dataset of shape {}.".format(total_time, (dataset_size, h, w)))
