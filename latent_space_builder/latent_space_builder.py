@@ -11,11 +11,16 @@ import h5py as h5
 
 
 def build_latent_space(dataset_file, image_type, target_type, latent_method, latent_dim, dataset_size, training_set_size, batch_size, n_shuffles = 2):
+    print("Target latent dimension: {}".format(latent_dim))
+    
     # Check if batch_size divides dataset_size
     if dataset_size % batch_size != 0:
         raise Exception("batch_size {} must divide dataset_size {}".format(batch_size, dataset_size))
     
     n_batches = dataset_size // batch_size
+    
+    # Define the Latent Model as None for now
+    latent_model = None
     
     # Read the image data from the dataset
     with h5.File(dataset_file, 'a') as dataset_file_handle:
@@ -24,7 +29,7 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
         
         # Get shape of images
         h, w = images_handle[0].shape
-
+        
         # Define a min-max rescaler to scale images between 0 and 1
         # Adapted from: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.minmax_scale.html
         max_value = np.finfo(np.float).min
@@ -49,7 +54,6 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
         training_set_rescaled = minmax_rescale(training_set_vectors)
         
         # Fit the latent (dimensionality reduction) method to the training set
-        latent_model = None
         if latent_method == "principal_component_analysis":
             # Fit PCA to the rescaled training set
             latent_model = PCA(n_components=latent_dim)
@@ -184,3 +188,5 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
                 latent_vectors_handle[i * batch_size : (i + 1) * batch_size] = latent_vectors
 
             print("It takes {:.2f} seconds total to transform the dataset of shape {}.".format(total_time, (dataset_size, h, w)))
+        
+    return latent_model
