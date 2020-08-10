@@ -59,15 +59,20 @@ import argparse
 import json
 
 import numpy as np
+
+# Random seeds
+NUMPY_RANDOM_SEED = 7
+PCA_SVD_SOLVER_RANDOM_STATE = 13
+
+# Set random seed for Numpy for reproducibility
+np.random.seed(NUMPY_RANDOM_SEED)
+
 from sklearn.decomposition import PCA
 
 from tqdm import tqdm
 
 import h5py as h5
 import deepdish as dd
-
-# Set random seed
-np.random.seed(7)
 
 
 def main():
@@ -306,8 +311,8 @@ def main():
             
 #             training_batch_j_rescaled = minmax_rescale(training_batch_j_vectors)
             
-            # Define PCA model ij
-            pca_model_ij = PCA(n_components=latent_dim)
+            # Define PCA model ij and set random state for PCA's SVD solver for reproducibility
+            pca_model_ij = PCA(random_state=PCA_SVD_SOLVER_RANDOM_STATE, n_components=latent_dim)
             
             # Fit PCA ij to batch j
             #pca_model_ij.fit(training_batch_j_rescaled)

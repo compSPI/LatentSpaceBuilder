@@ -9,7 +9,7 @@
         "trainingBatchSize": 2000,
         "testingBatchSize": 1000,
         "latentDim": 3,
-        "nShuffles": 3,
+        "nShuffles": 1,
         "modelMetadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K/models/ensemble_pca_mpi"
     }
 }
