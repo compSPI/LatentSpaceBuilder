@@ -64,6 +64,7 @@ from sklearn.decomposition import PCA
 from tqdm import tqdm
 
 import h5py as h5
+import deepdish as dd
 
 # Set random seed
 np.random.seed(7)
@@ -94,6 +95,7 @@ def main():
     testing_batch_size = dataset_params["testingBatchSize"]
     latent_dim = dataset_params["latentDim"]
     n_shuffles = dataset_params["nShuffles"]
+    model_metadata_dir = dataset_params["modelMetadataDir"]
      
     # Define indices for the entire dataset
     dataset_idx = np.arange(dataset_size)
@@ -109,7 +111,7 @@ def main():
         
         # Get the HDF5 file
         h5_file_handle = h5.File(h5_file, 'a')
-
+        
         # Define the shape for the training set mask
         training_set_mask_shape = (dataset_size,)
         
@@ -121,11 +123,15 @@ def main():
         if training_set_mask_key in h5_file_handle:
             del h5_file_handle[training_set_mask_key]
         
-        # Create a new dataset for the boolean array of training labels
+        # Create a new dataset for the training set mask
         h5_file_handle.create_dataset(training_set_mask_key, training_set_mask_shape, dtype='u1', data=training_set_mask)
         
         # Close the HDF5 file
         h5_file_handle.close()
+        
+        # Create a directory to store metadata for each base model
+        if not os.path.exists(model_metadata_dir):
+            os.makedirs(model_metadata_dir)
     
     sys.stdout.flush()
 
@@ -240,6 +246,9 @@ def main():
         # Get the dataset from the HDF5 file
         h5_dataset = h5_file_handler[dataset_key]
         
+        # Get the dataset from the HDF5 file
+        h5_dataset = h5_file_handler[dataset_key]
+        
         # Each Slave owns a subset of the ensemble of PCA base models, call it PCA sub-ensemble i
         pca_subensemble_i = []
         
@@ -252,6 +261,32 @@ def main():
 
             # If batch j is final flag, stop
             if batch_j is None:
+                
+                # Define an empty metadata for the PCA sub-ensemble of this rank
+                pca_subensemble_i_metadata = []
+                
+                # Populate the metadata for the PCA sub-ensemble of this rank
+                for pca_model_ij in pca_subensemble_i:
+                    # Define PCA metadata for this rank
+                    pca_model_ij_metadata = {
+                        "components": pca_model_ij.components_,
+                        "explained_variance": pca_model_ij.explained_variance_,
+                        "singular_values": pca_model_ij.singular_values_,
+                        "mean": pca_model_ij.mean_,
+                        "noise_variance": pca_model_ij.noise_variance_
+                    }
+                    
+                    # Add PCA metadata to PCA sub-ensemble metadata
+                    pca_subensemble_i_metadata.append(pca_model_ij_metadata)
+   
+                # Define a path to save PCA sub-ensemble metadata
+                model_metadata_file = "pca-sub-ensemble-metadata-slave-{}-n_shuffles={}.h5".format(RANK, n_shuffles)
+                model_metadata_path = os.path.join(model_metadata_dir, model_metadata_file)
+                    
+                # Save metadata to file
+                print("\n(Slave {}) Save PCA sub-ensemble metadata to: {}".format(RANK, model_metadata_path))
+                dd.io.save(model_metadata_path, pca_subensemble_i_metadata)
+                
                 break
 
             # Define the batch start and end offsets
