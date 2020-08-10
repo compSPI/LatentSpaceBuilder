@@ -60,7 +60,7 @@ import json
 
 import numpy as np
 
-# Random seeds
+# Define random seeds
 NUMPY_RANDOM_SEED = 7
 PCA_SVD_SOLVER_RANDOM_STATE = 13
 
