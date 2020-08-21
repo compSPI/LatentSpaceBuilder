@@ -5,11 +5,11 @@
         "datasetKey": "diffraction_patterns",
         "latentSpaceKey": "ensemble_pca_mpi",
         "datasetSize": 10000,
-        "trainingSetSize": 4000,
+        "trainingSetSize": 10000,
         "trainingBatchSize": 1000,
         "testingBatchSize": 1000,
         "latentDim": 3,
-        "nShuffles": 2,
+        "nShuffles": 10,
         "modelMetadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K/models/ensemble_pca_mpi"
     }
 }
