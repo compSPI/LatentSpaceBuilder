@@ -6,7 +6,7 @@
         "latentSpaceKey": "ensemble_pca_mpi",
         "datasetSize": 10000,
         "trainingSetSize": 4000,
-        "trainingBatchSize": 2000,
+        "trainingBatchSize": 1000,
         "testingBatchSize": 1000,
         "latentDim": 3,
         "nShuffles": 2,

@@ -7,7 +7,6 @@ This script implements Ensemble PCA using the MPI Communication Model.
 
 Run instructions:
 
-mpiexec -n 2 python ensemble_pca_mpi.py --config ensemble-pca-mpi.json --dataset 3iyf-10K
 mpiexec -n 3 python ensemble_pca_mpi.py --config ensemble-pca-mpi.json --dataset 3iyf-10K
 
 Ensemble PCA algorithm:
@@ -38,7 +37,7 @@ In the second phase, we use the fit PCA models to transform batches of the entir
 
 Reference:
 
-[1] Bogdan Gabrys, Bruno Baruque, and Emilio Corchado.  Outlier Resistant PCA ensembles. In Lecture Notes in Computer Science (including subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), volume 4253 LNAI - III, pages 432–440. Springer Verlag, 2006.
+[1] Bogdan Gabrys, Bruno Baruque, and Emilio Corchado. Outlier Resistant PCA ensembles. In Lecture Notes in Computer Science (including subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), volume 4253 LNAI - III, pages 432-440. Springer Verlag, 2006.
 """
 
 # MPI parameters
@@ -105,7 +104,7 @@ def main():
     latent_dim = dataset_params["latentDim"]
     n_shuffles = dataset_params["nShuffles"]
     model_metadata_dir = dataset_params["modelMetadataDir"]
-     
+    
     # Define indices for the entire dataset
     dataset_idx = np.arange(dataset_size)
         
@@ -163,8 +162,8 @@ def main():
     testing_set_idx = dataset_idx
     
     # Check if the training dataset can be split into m batches
-    if training_set_size % training_batch_size != 0:
-        raise Exception("training_set_size {} needs to be divisible by training_batch_size {}".format(training_set_size, training_batch_size))
+#     if training_set_size % training_batch_size != 0:
+#         raise Exception("training_set_size {} needs to be divisible by training_batch_size {}".format(training_set_size, training_batch_size))
     
     # Check if the testing dataset can be split into p batches
     #testing_set_size = dataset_size - training_set_size
@@ -173,7 +172,7 @@ def main():
         raise Exception("testing_set_size {} needs to be divisible by testing_batch_size {}".format(testing_set_size, testing_batch_size))
     
     # Split the training dataset into training batches
-    m_training_batches = training_set_size // training_batch_size
+#     m_training_batches = training_set_size // training_batch_size
     
     # Split the testing dataset into testing batches
     p_testing_batches = testing_set_size // testing_batch_size
