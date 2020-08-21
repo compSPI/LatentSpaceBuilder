@@ -10,31 +10,35 @@ Run instructions:
 mpiexec -n 2 python ensemble_pca_mpi.py --config ensemble-pca-mpi.json --dataset 3iyf-10K
 mpiexec -n 3 python ensemble_pca_mpi.py --config ensemble-pca-mpi.json --dataset 3iyf-10K
 
-Description of the algorithm:
+Ensemble PCA algorithm:
 
-The algorithm is split into two phases.
+Ensemble PCA first fits each of its PCA base models to a batch of data randomly sampled from the training dataset. Each PCA model is then used to find a projection of a batch of data taken from the dataset. The projections for this batch are summed together similar to [1] to produce the resulting latent projection. This latent projection is then added to the latent space. This procedure is repeated across all batches in the dataset. We now formalize a parallel algorithm to implement Ensemble PCA using MPI. In this MPI Communication Model, there is one Master and many Slaves. The algorithm is split into two phases. Each phase is described below.
 
 Phase I: Fitting the PCA models
 
-In the first phase, we fit the PCA base models of Ensemble PCA to batches of the training dataset. Using the MPI Communication Model, Master divides up the training dataset into batches and assigns each batch to a Slave. Each Slave will then fit a PCA model to the batch. At the end of this phase, all of the training data will have been fit by a PCA model owned by some Slave.
-
-More formally:
+In the first phase, we fit the PCA base models of Ensemble PCA to batches of the training dataset. Using the MPI Communication Model, Master divides up the training dataset into batches and assigns each batch to a Slave. Each Slave will then define a new PCA model and fit this model to the batch. This procedure is repeated until there are no more batches. At the end of this phase, all of the training data will have been fit by a PCA model owned by some Slave. This fitting procedure for each Slave is formalized below.
     
 1. Slave i asks Master for training data batch j
 2. Master provides Slave i with batch j
-3. Slave i defines PCA model ij and fits to batch j
-4. Slave i adds PCA ij to PCA sub-ensemble i, where PCA sub-ensemble is a subset of the ensemble of PCA base models
+3. Slave i defines PCA model ij
+4. Slave i fits PCA model ij to batch j
+Repeat steps 1-4 until there are no more training batches
 
 Phase II: Building the Latent Space using the PCA models
 
-In the second phase, we use the fit PCA models to transform batches of the entire dataset. The tranformations are then averaged to build the the latent space. Using the MPI Communication Model, Master divides up the dataset into batches and assigns each batch to a Slave. Each Slave then transforms each batch using their collection of PCA models that were fit in the previous phase. The Slaves averages the resulting transformations to build the latent space. At the end of this phase, the latent space should be fully populated with the transformations.
-
-More formally:
+In the second phase, we use the fit PCA models to transform batches of the entire dataset into latent projections. The latent projections are used to build the latent space for the entire dataset. Using the MPI Communication Model, Master divides up the dataset into batches and assigns each batch to a Slave. Each Slave then transforms each batch into a latent projection using their collection of PCA models that were fit in the previous phase. This procedure is repeated until there are no more batches. At the end of this phase, the latent space should be fully populated with the latent projections. This projection procedure for each Slave is formalized below.
 
 1. Slave i asks Master for data batch k
 2. Master provides Slave i with batch k
-3. Slave i uses its j PCA models ij to transform batch k into transformation ik
-4. Slave i adds the transformation ik to the latent space
+3. Slave i uses PCA model ij to transform batch k into projection ijk
+4. Repeat step 3 for all the j PCA models ij owned by Slave i
+5. Projections ijk are summed together to produce projection ik
+6. Slave i adds projection ik to the latent space
+7. Repeat steps 1-6 until there are no more data batches
+
+Reference:
+
+[1] Bogdan Gabrys, Bruno Baruque, and Emilio Corchado.  Outlier Resistant PCA ensembles. In Lecture Notes in Computer Science (including subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics), volume 4253 LNAI - III, pages 432–440. Springer Verlag, 2006.
 """
 
 # MPI parameters
@@ -415,28 +419,28 @@ def main():
 #             M = np.mean(testing_batch_k_vectors.T, axis=1)
 #             C = testing_batch_k_vectors - M
         
-#             transformation_ik = np.matmul(V, C.T).T
+#             projection_ik = np.matmul(V, C.T).T
             
-#             h5_latent_space[testing_set_idx[batch_start:batch_end]] = transformation_ik
+#             h5_latent_space[testing_set_idx[batch_start:batch_end]] = projection_ik
     
-            # Define a zero Numpy array to accumulate the transformations produced by Slave's j PCA models ij
-            transformation_ik = np.zeros((testing_batch_size, latent_dim))
+            # Define a zero Numpy array to accumulate the projections produced by Slave's j PCA models ij
+            projection_ik = np.zeros((testing_batch_size, latent_dim))
             
-            # Use this Slave's j PCA models ij to transform batch k into transformation ik
+            # Use this Slave's j PCA models ij to transform batch k into projection ik
             for pca_model_ij in pca_subensemble_i:
-                transformation_ik += pca_model_ij.transform(testing_batch_k_vectors)
-                #transformation_ijk = pca_model_ij.transform(testing_batch_k_vectors)
+                projection_ik += pca_model_ij.transform(testing_batch_k_vectors)
+                #projection_ijk = pca_model_ij.transform(testing_batch_k_vectors)
                 
-                # align transformation ik according to principal axis
-                #transformation_ijk_aligned = center_and_align_atom_positions_according_to_principal_axes(transformation_ijk)
+                # align projection ik according to principal axis
+                #projection_ijk_aligned = center_and_align_atom_positions_according_to_principal_axes(projection_ijk)
                 
-                # Average aligned transformations
-                #transformation_ik += transformation_ijk_aligned
+                # Average aligned projections
+                #projection_ik += projection_ijk_aligned
             
-            # Add the transformation to the latent space
-            h5_latent_space[testing_set_idx[batch_start:batch_end]] = transformation_ik
+            # Add the projection to the latent space
+            h5_latent_space[testing_set_idx[batch_start:batch_end]] = projection_ik
             
-            #h5_latent_space[testing_set_idx[batch_start:batch_end]] += center_and_align_atom_positions_according_to_principal_axes(transformation_ik)
+            #h5_latent_space[testing_set_idx[batch_start:batch_end]] += center_and_align_atom_positions_according_to_principal_axes(projection_ik)
             
         # Close the HDF5 file
         h5_file_handle.close()
