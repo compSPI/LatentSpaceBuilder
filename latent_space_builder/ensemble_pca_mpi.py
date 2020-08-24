@@ -17,7 +17,7 @@ Phase I: Fitting the PCA models
 
 In the first phase, we fit the PCA base models of Ensemble PCA to batches of the training dataset. Using the MPI Communication Model, Master divides up the training dataset into batches and assigns each batch to a Slave. Each Slave will then define a new PCA model and fit this model to the batch. This procedure is repeated until there are no more batches. At the end of this phase, all of the training data will have been fit by a PCA model owned by some Slave. This fitting procedure for each Slave is formalized below.
     
-1. Slave i asks Master for training data batch j
+1. Slave i asks Master for a training data batch
 2. Master provides Slave i with batch j
 3. Slave i defines PCA model ij
 4. Slave i fits PCA model ij to batch j
@@ -27,7 +27,7 @@ Phase II: Building the Latent Space using the PCA models
 
 In the second phase, we use the fit PCA models to transform batches of the entire dataset into latent projections. The latent projections are used to build the latent space for the entire dataset. Using the MPI Communication Model, Master divides up the dataset into batches and assigns each batch to a Slave. Each Slave then transforms each batch into a latent projection using their collection of PCA models that were fit in the previous phase. This procedure is repeated until there are no more batches. At the end of this phase, the latent space should be fully populated with the latent projections. This projection procedure for each Slave is formalized below.
 
-1. Slave i asks Master for data batch k
+1. Slave i asks Master for a data batch
 2. Master provides Slave i with batch k
 3. Slave i uses PCA model ij to transform batch k into projection ijk
 4. Repeat step 3 for all the j PCA models ij owned by Slave i
