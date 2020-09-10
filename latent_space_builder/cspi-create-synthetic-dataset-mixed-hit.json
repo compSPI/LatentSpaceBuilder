@@ -34,5 +34,50 @@
         "datasetSize": 10000,
         "singleToDoubleHitsMixtureRatio": 0.99,
         "imgDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99/images"
+    },
+    "3iyf-10K-mixed-hit-99-single-hits-labeled":
+    {
+        "mixedHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-single-hits-labeled/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "singleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "doubleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-double-hit/dataset/cspi_synthetic_dataset_double-hit_diffraction_patterns_3iyf-10K-double-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 10000,
+        "singleToDoubleHitsMixtureRatio": 0.99,
+        "imgDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-single-hits-labeled/images"
+    },
+    "3iyf-100K-mixed-hit-80":
+    {
+        "mixedHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-80/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K-mixed-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "singleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "doubleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-double-hit/dataset/cspi_synthetic_dataset_double-hit_diffraction_patterns_3iyf-100K-double-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 100000,
+        "singleToDoubleHitsMixtureRatio": 0.8,
+        "imgDir": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-80/images"
+    },
+    "3iyf-100K-mixed-hit-90":
+    {
+        "mixedHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-90/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K-mixed-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "singleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "doubleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-double-hit/dataset/cspi_synthetic_dataset_double-hit_diffraction_patterns_3iyf-100K-double-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 100000,
+        "singleToDoubleHitsMixtureRatio": 0.9,
+        "imgDir": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-90/images"
+    },
+    "3iyf-100K-mixed-hit-95":
+    {
+        "mixedHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-95/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K-mixed-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "singleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "doubleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-double-hit/dataset/cspi_synthetic_dataset_double-hit_diffraction_patterns_3iyf-100K-double-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 100000,
+        "singleToDoubleHitsMixtureRatio": 0.95,
+        "imgDir": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-95/images"
+    },
+    "3iyf-100K-mixed-hit-99":
+    {
+        "mixedHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-99/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K-mixed-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "singleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "doubleHitsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-double-hit/dataset/cspi_synthetic_dataset_double-hit_diffraction_patterns_3iyf-100K-double-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 100000,
+        "singleToDoubleHitsMixtureRatio": 0.99,
+        "imgDir": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-99/images"
     }
 }

@@ -6,6 +6,8 @@ import argparse
 import json
 
 import numpy as np
+np.random.seed(13)
+
 from PIL import Image
 import h5py as h5
 
@@ -15,16 +17,15 @@ Deeban Ramalingam (deebanr@slac.stanford.edu)
 
 This script creates a mixed-hit synthetic dataset from single- and double-hit datasets.
 
-python cspi_create_synthetic_dataset_mixed_hit.py --config cspi-create-synthetic-dataset-mixed-hit.json --dataset 3iyf-10K-mixed-hit-80
+python cspi_create_synthetic_dataset_mixed_hit.py --config cspi-create-synthetic-dataset-mixed-hit.json --dataset 3iyf-10K-mixed-hit-99
 
 If you wish to use the Latent Space Visualizer to visualize the synthetic dataset, make the image output directory accessible to JupyterHub on PSWWW after running the script.
 
 Example on how to make the image output directory accessible to the Latent Space Visualizer:
 
-If img_dir is /reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-80/images then run the following command from the Terminal
+If img_dir is /reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99/images then run the following command from the Terminal
 
-ln -s /reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-80 /reg/neh/home/deebanr/3iyf-10K-mixed-hit-80
-ln -s /reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-90 /reg/neh/home/deebanr/3iyf-10K-mixed-hit-90
+ln -s /reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99 /reg/neh/home/deebanr/3iyf-10K-mixed-hit-99
 
 """
 
@@ -54,6 +55,7 @@ def create_synthetic_dataset_mixed_hit(mixed_hits_h5_file, single_hits_h5_file, 
     orientations_key = "orientations"
     diffraction_patterns_key = "diffraction_patterns"
     atomic_coordinates_key = "atomic_coordinates"
+    single_hits_mask_key = "single_hits_mask"
 
     mixed_hits_h5_file_handle.create_dataset(orientations_key, (dataset_size, 4), dtype='f')
     mixed_hits_h5_file_handle.create_dataset(diffraction_patterns_key, (dataset_size, 1024, 1040), dtype='f')
@@ -61,6 +63,10 @@ def create_synthetic_dataset_mixed_hit(mixed_hits_h5_file, single_hits_h5_file, 
     atomic_coordinates = single_hits_h5_file_handle[atomic_coordinates_key][:]
     atomic_coordinates_shape = atomic_coordinates.shape
     mixed_hits_h5_file_handle.create_dataset(atomic_coordinates_key, atomic_coordinates_shape, dtype='f', data=atomic_coordinates)
+    
+    single_hits_mask = np.zeros_like(dataset_idx, dtype=bool)
+    single_hits_mask_shape = single_hits_mask.shape
+    mixed_hits_h5_file_handle.create_dataset(single_hits_mask_key, single_hits_mask_shape, dtype='u1', data=single_hits_mask)
 
     i_single_hits = 0
     j_double_hits = 0
@@ -72,7 +78,8 @@ def create_synthetic_dataset_mixed_hit(mixed_hits_h5_file, single_hits_h5_file, 
             
             mixed_hits_h5_file_handle[orientations_key][k_mixed_hits] = single_hits_h5_file_handle[orientations_key][single_hits_idx[i_single_hits]]
             mixed_hits_h5_file_handle[diffraction_patterns_key][k_mixed_hits] = single_hits_h5_file_handle[diffraction_patterns_key][single_hits_idx[i_single_hits]]
-
+            mixed_hits_h5_file_handle[single_hits_mask_key][k_mixed_hits] = True
+            
             i_single_hits = i_single_hits + 1
         
         else:
@@ -80,7 +87,8 @@ def create_synthetic_dataset_mixed_hit(mixed_hits_h5_file, single_hits_h5_file, 
             # Use the orientation of the particle centered at the origin
             mixed_hits_h5_file_handle[orientations_key][k_mixed_hits] = double_hits_h5_file_handle[orientations_key][double_hits_idx[j_double_hits]][0]
             mixed_hits_h5_file_handle[diffraction_patterns_key][k_mixed_hits] = double_hits_h5_file_handle[diffraction_patterns_key][double_hits_idx[j_double_hits]]
-
+            mixed_hits_h5_file_handle[single_hits_mask_key][k_mixed_hits] = False
+            
             j_double_hits = j_double_hits + 1
         
         save_diffraction_pattern_as_image(k_mixed_hits, img_dir, mixed_hits_h5_file_handle[diffraction_patterns_key][k_mixed_hits])
@@ -94,7 +102,8 @@ def create_synthetic_dataset_mixed_hit(mixed_hits_h5_file, single_hits_h5_file, 
 
         mixed_hits_h5_file_handle[orientations_key][k_mixed_hits] = single_hits_h5_file_handle[orientations_key][single_hits_idx[i_single_hits]]
         mixed_hits_h5_file_handle[diffraction_patterns_key][k_mixed_hits] = single_hits_h5_file_handle[diffraction_patterns_key][single_hits_idx[i_single_hits]]
-
+        mixed_hits_h5_file_handle[single_hits_mask_key][k_mixed_hits] = True
+        
         save_diffraction_pattern_as_image(k_mixed_hits, img_dir, mixed_hits_h5_file_handle[diffraction_patterns_key][k_mixed_hits])
 
         i_single_hits = i_single_hits + 1
@@ -108,6 +117,7 @@ def create_synthetic_dataset_mixed_hit(mixed_hits_h5_file, single_hits_h5_file, 
         # Use the orientation of the particle centered at the origin
         mixed_hits_h5_file_handle[orientations_key][k_mixed_hits] = double_hits_h5_file_handle[orientations_key][double_hits_idx[j_double_hits]][0]
         mixed_hits_h5_file_handle[diffraction_patterns_key][k_mixed_hits] = double_hits_h5_file_handle[diffraction_patterns_key][double_hits_idx[j_double_hits]]
+        mixed_hits_h5_file_handle[single_hits_mask_key][k_mixed_hits] = False
         
         save_diffraction_pattern_as_image(k_mixed_hits, img_dir, mixed_hits_h5_file_handle[diffraction_patterns_key][k_mixed_hits])
 
