@@ -1,0 +1,41 @@
+{
+	"3iyf-10K-mixed-hit-99-single-hits-labeled":
+	{
+		"downsampledDiffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-single-hits-labeled/dataset/downsample-128x128-test/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+		"downsampledDiffractionPatternHeight": 128,
+		"downsampledDiffractionPatternWidth": 128,
+		"numDiffractionPatterns": 10000,
+		"numDownsampledDiffractionPatternsToFitPerBatch": 100,
+		"incrementalPcaResultsDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-single-hits-labeled/dataset/incremental-pca",
+		"saveIncrementalPcaModel": true,
+		"numItersToSaveIncrementalPcaModel": 10,
+		"projectDownsampledDiffractionPatternsSeenThusFar": true,
+		"numItersToProjectDownsampledDiffractionPatternsSeenThusFar": 10,
+		"measureConvergenceForDownsampledDiffractionPatternsSeenThusFar": true,
+		"numItersToMeasureConvergenceForDownsampledDiffractionPatternsSeenThusFar": 10,
+		"minimumConvergenceMeasureToStartFlaggingDownsampledDiffractionPatternOutliers": 0.75,
+		"numItersToUpdateLatentSpaceAfterConvergence": 10,
+		"numLatentDims": 3,
+		"verboseOutput": false
+	},
+    "3iyf-100K-mixed-hit-99":
+	{
+		"downsampledDiffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-99/dataset/downsample-128x128/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K-mixed-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
+		"downsampledDiffractionPatternHeight": 128,
+		"downsampledDiffractionPatternWidth": 128,
+		"numDiffractionPatterns": 100000,
+		"numDownsampledDiffractionPatternsToFitPerBatch": 100,
+		"incrementalPcaResultsDir": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-99/dataset/incremental-pca/09-03-20/run-1",
+		"saveIncrementalPcaModel": true,
+		"numItersToSaveIncrementalPcaModel": 10,
+		"projectDownsampledDiffractionPatternsSeenThusFar": true,
+		"numItersToProjectDownsampledDiffractionPatternsSeenThusFar": 10,
+		"measureConvergenceForDownsampledDiffractionPatternsSeenThusFar": true,
+		"numItersToMeasureConvergenceForDownsampledDiffractionPatternsSeenThusFar": 10,
+		"minimumConvergenceMeasureToStartFlaggingDownsampledDiffractionPatternOutliers": 0.0,
+		"numItersToUpdateLatentSpaceAfterConvergence": 10,
+		"numLatentDims": 3,
+		"verboseOutput": false,
+		"newBatchNumberToLoadIncrementalPcaModel": 1000
+	}
+}

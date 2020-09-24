@@ -1,0 +1,15 @@
+{
+    "3iyf-10K":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040-test-copy.hdf5",
+        "datasetKey": "diffraction_patterns",
+        "latentSpaceKey": "ensemble_pca_mpi",
+        "datasetSize": 10000,
+        "trainingSetSize": 10000,
+        "trainingBatchSize": 1000,
+        "testingBatchSize": 1000,
+        "latentDim": 3,
+        "nShuffles": 10,
+        "modelMetadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K/models/ensemble_pca_mpi"
+    }
+}

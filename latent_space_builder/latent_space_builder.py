@@ -30,18 +30,18 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
         # Get shape of images
         h, w = images_handle[0].shape
         
-        # Define a min-max rescaler to scale images between 0 and 1
-        # Adapted from: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.minmax_scale.html
-        max_value = np.finfo(np.float).min
-        min_value = np.finfo(np.float).max
+#         # Define a min-max rescaler to scale images between 0 and 1
+#         # Adapted from: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.minmax_scale.html
+#         max_value = np.finfo(np.float).min
+#         min_value = np.finfo(np.float).max
         
-        for i in range(n_batches):
-            image_batch = images_handle[i * batch_size : (i + 1) * batch_size]
-            max_value = max(max_value, np.max(image_batch))
-            min_value = min(min_value, np.min(image_batch))
+#         for i in range(n_batches):
+#             image_batch = images_handle[i * batch_size : (i + 1) * batch_size]
+#             max_value = max(max_value, np.max(image_batch))
+#             min_value = min(min_value, np.min(image_batch))
         
-        def minmax_rescale(x):
-            return (x - min_value) / (max_value - min_value)
+#         def minmax_rescale(x):
+#             return (x - min_value) / (max_value - min_value)
 
         # Define the training set
         training_set_idx = np.sort(np.random.choice(dataset_size, training_set_size, replace=False))
@@ -51,7 +51,7 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
         training_set_vectors = training_set.reshape(training_set_size, h * w)
         
         # Rescale the training set
-        training_set_rescaled = minmax_rescale(training_set_vectors)
+#         training_set_rescaled = minmax_rescale(training_set_vectors)
         
         # Fit the latent (dimensionality reduction) method to the training set
         if latent_method == "principal_component_analysis":
@@ -83,16 +83,21 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
             total_time = 0
             for i in range(n_training_batches):
                 # Get a training batch of rescaled image vectors
-                training_batch_rescaled = training_set_rescaled[i * batch_size : (i + 1) * batch_size]
+#                 training_batch_rescaled = training_set_rescaled[i * batch_size : (i + 1) * batch_size]
+                training_batch_vectors = training_set_vectors[i * batch_size : (i + 1) * batch_size]
                 
                 # Partial fit Incremental PCA to the rescaled training batch
                 tic = time.time()
-                latent_model.partial_fit(training_batch_rescaled)
+#                 latent_model.partial_fit(training_batch_rescaled)
+                latent_model.partial_fit(training_batch_vectors)
                 toc = time.time()
-                print("It takes {:.2f} seconds for Incremental PCA to fit to a training batch of shape {}.".format(toc-tic, training_batch_rescaled.shape))
+#                 print("It takes {:.2f} seconds for Incremental PCA to fit to a training batch of shape {}.".format(toc-tic, training_batch_rescaled.shape))
+                print("It takes {:.2f} seconds for Incremental PCA to fit to a training batch of shape {}.".format(toc-tic, training_batch_vectors.shape))
+
                 total_time += toc - tic
             
-            print("It takes {:.2f} seconds total for Incremental PCA to fit to the training set of shape {}.".format(total_time, training_set_rescaled.shape))
+#             print("It takes {:.2f} seconds total for Incremental PCA to fit to the training set of shape {}.".format(total_time, training_set_rescaled.shape))
+            print("It takes {:.2f} seconds total for Incremental PCA to fit to the training set of shape {}.".format(total_time, training_set_vectors.shape))
         
         elif latent_method == "ensemble_pca":
             # Define an empty ensemble of base models
@@ -175,13 +180,15 @@ def build_latent_space(dataset_file, image_type, target_type, latent_method, lat
                 image_batch_vectors = image_batch.reshape(batch_size, h * w)
 
                 # Rescale between 0 and 1
-                image_batch_vectors_rescaled = minmax_rescale(image_batch_vectors)
+#                 image_batch_vectors_rescaled = minmax_rescale(image_batch_vectors)
 
                 # Transform the rescaled image vectors using the fit latent method into latent vectors
                 tic = time.time()
-                latent_vectors = latent_model.transform(image_batch_vectors_rescaled)
+#                 latent_vectors = latent_model.transform(image_batch_vectors_rescaled)
+                latent_vectors = latent_model.transform(image_batch_vectors)
                 toc = time.time()
-                print("It takes {:.2f} seconds for transforming a batch of {} image vectors.".format(toc-tic, image_batch_vectors_rescaled.shape))
+#                 print("It takes {:.2f} seconds for transforming a batch of {} image vectors.".format(toc-tic, image_batch_vectors_rescaled.shape))
+                print("It takes {:.2f} seconds for transforming a batch of {} image vectors.".format(toc-tic, image_batch_vectors.shape))
                 total_time += toc - tic
 
                 # Add the latent vectors into the dataset

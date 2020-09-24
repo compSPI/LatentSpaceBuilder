@@ -1,0 +1,83 @@
+{
+    "3iyf-10K-mixed-hit-80":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-80/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 10000,
+        "batchSize": 5,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-80/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 5
+    },
+    "3iyf-10K-mixed-hit-90":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-90/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 10000,
+        "batchSize": 5,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-90/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 5
+    },
+    "3iyf-10K-mixed-hit-95":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-95/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 10000,
+        "batchSize": 5,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-95/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 5
+    },
+    "3iyf-10K-mixed-hit-99":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 10000,
+        "batchSize": 5,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 5
+    },
+    "3iyf-10K-mixed-hit-99-batch_size=5":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=5/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 500,
+        "batchSize": 5,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=5/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 5
+    },
+    "3iyf-10K-mixed-hit-99-batch_size=10":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=10/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 500,
+        "batchSize": 10,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=10/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 10
+    },
+    "3iyf-10K-mixed-hit-99-batch_size=15":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=15/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 495,
+        "batchSize": 15,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=15/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 15
+    },
+    "3iyf-10K-mixed-hit-99-batch_size=20":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=20/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 500,
+        "batchSize": 20,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=20/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 20
+    },
+    "3iyf-10K-mixed-hit-99-batch_size=25":
+    {
+        "h5File": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=25/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "datasetSize": 500,
+        "batchSize": 25,
+        "latentDim": 3,
+        "metadataDir": "/reg/data/ana03/scratch/deebanr/3iyf-10K-mixed-hit-99-batch_size=25/models/incremental_pca",
+        "numTrainSamplesToSaveMetadata": 25
+    }
+}
