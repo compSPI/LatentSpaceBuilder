@@ -36,7 +36,7 @@ The goal of this script is to efficiently downsample diffraction patterns using 
 
 Run instructions:
 
-mpiexec -n 48 python incremental_pca_downsampling_featurization_mpi.py --config incremental-pca-downsampling-featurization-mpi.json --dataset 3iyf-10K-mixed-hit-99-single-hits-labeled
+mpiexec -n 16 python incremental_pca_downsampling_featurization_mpi.py --config incremental-pca-downsampling-featurization-mpi.json --dataset 3iyf-10K-mixed-hit-99-single-hits-labeled
 
 Algorithm for downsampling diffraction patterns using the MPI Communication Model:
 

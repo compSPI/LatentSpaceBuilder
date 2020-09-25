@@ -47,6 +47,7 @@ def main():
     downsampled_diffraction_pattern_width = dataset_params["downsampledDiffractionPatternWidth"]
 
     num_downsampled_diffraction_patterns = dataset_params["numDiffractionPatterns"]    
+
     num_downsampled_diffraction_patterns_to_fit_per_batch = dataset_params["numDownsampledDiffractionPatternsToFitPerBatch"]
     assert num_downsampled_diffraction_patterns % num_downsampled_diffraction_patterns_to_fit_per_batch == 0
     num_batches_of_downsampled_diffraction_patterns = num_downsampled_diffraction_patterns // num_downsampled_diffraction_patterns_to_fit_per_batch 
@@ -62,12 +63,16 @@ def main():
     num_iters_to_project_downsampled_diffraction_patterns_seen_thus_far = dataset_params["numItersToProjectDownsampledDiffractionPatternsSeenThusFar"]
     
     measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far = dataset_params["measureConvergenceForDownsampledDiffractionPatternsSeenThusFar"]
-    num_iters_to_measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far = dataset_params["numItersToMeasureConvergenceForDownsampledDiffractionPatternsSeenThusFar"]        
+    num_iters_to_measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far = dataset_params["numItersToMeasureConvergenceForDownsampledDiffractionPatternsSeenThusFar"]
 
-    #
+    option_for_measuring_convergence = dataset_params["optionForMeasuringConvergence"]
+
+    if option_for_measuring_convergence == "meanSquaredReconstructionErrorForDiffractionPatternsSeenThusFarUsingLastNIters":
+        num_previous_downsampled_diffraction_pattern_batches_to_consider_for_mean_square_reconstruction_error_convergence_measure = dataset_params["numPreviousDownsampledDiffractionPatternBatchesToConsiderForMeanSquareReconstructionErrorConvergenceMeasure"]
+
     batch_number_converged = None
     convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far = None    
-    #
+
     minimum_convergence_measure_to_start_flagging_downsampled_diffraction_pattern_outliers = dataset_params["minimumConvergenceMeasureToStartFlaggingDownsampledDiffractionPatternOutliers"]
 
     num_iters_to_update_latent_space_after_convergence = dataset_params["numItersToUpdateLatentSpaceAfterConvergence"]
@@ -79,7 +84,6 @@ def main():
     if not verbose_output:
         progress_bar_for_num_batches_of_downsampled_diffraction_patterns_processed = tqdm(total = num_batches_of_downsampled_diffraction_patterns)
 
-    #
     new_batch_number_to_load_incremental_pca_model = dataset_params["newBatchNumberToLoadIncrementalPcaModel"]
     if new_batch_number_to_load_incremental_pca_model is not None:
 
@@ -124,65 +128,101 @@ def main():
         
         incremental_pca = IncrementalPCA(n_components=num_latent_dims)
         new_batch_number = 0
-    #   
+        convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far = np.asarray(np.inf)
     
-    #
-    if convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far is None or convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far >= minimum_convergence_measure_to_start_flagging_downsampled_diffraction_pattern_outliers:
-    #
+    while new_batch_number < num_batches_of_downsampled_diffraction_patterns and convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far >= minimum_convergence_measure_to_start_flagging_downsampled_diffraction_pattern_outliers:
 
-        while new_batch_number < num_batches_of_downsampled_diffraction_patterns:
+        new_downsampled_diffraction_patterns_batch_to_fit = downsampled_diffraction_patterns[new_batch_number * num_downsampled_diffraction_patterns_to_fit_per_batch : (new_batch_number + 1) * num_downsampled_diffraction_patterns_to_fit_per_batch].reshape((num_downsampled_diffraction_patterns_to_fit_per_batch, -1))
 
-            new_downsampled_diffraction_patterns_batch_to_fit = downsampled_diffraction_patterns[new_batch_number * num_downsampled_diffraction_patterns_to_fit_per_batch : (new_batch_number + 1) * num_downsampled_diffraction_patterns_to_fit_per_batch].reshape((num_downsampled_diffraction_patterns_to_fit_per_batch, -1))
+        tic = time.time()
+        incremental_pca.partial_fit(new_downsampled_diffraction_patterns_batch_to_fit)
+        toc = time.time()
+        time_taken_to_update_incremental_pca_with_new_batch = toc - tic
+        
+        time_taken_to_update_incremental_pca_with_new_batch_file = os.path.join(incremental_pca_results_dir, "incremental-pca-time-taken-to-update-incremental-pca-with-new-batch-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
+        np.save(time_taken_to_update_incremental_pca_with_new_batch_file, time_taken_to_update_incremental_pca_with_new_batch)
+        
+        if verbose_output:
+            print("Save time_taken_to_update_incremental_pca_with_new_batch={:.4f} to: {}".format(time_taken_to_update_incremental_pca_with_new_batch, time_taken_to_update_incremental_pca_with_new_batch_file))
+
+        if not verbose_output:
+            if convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far is not None:
+                progress_bar_for_num_batches_of_downsampled_diffraction_patterns_processed.set_postfix_str("convergence measure={:.4f}".format(np.asscalar(convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far)), refresh=False)
+
+            progress_bar_for_num_batches_of_downsampled_diffraction_patterns_processed.update(1)
+
+        if save_incremental_pca_model and (new_batch_number + 1) % num_iters_to_save_incremental_pca_model == 0:
+
+            incremental_pca_model_file = os.path.join(incremental_pca_results_dir, "incremental-pca-incremental-pca-model-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.pkl".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
+
+            with open(incremental_pca_model_file, 'wb') as incremental_pca_model_file_handle:
+                pickle.dump(incremental_pca, incremental_pca_model_file_handle)
+
+            if verbose_output:
+                print("Saved incremental_pca_model to: {}".format(incremental_pca_model_file))
+
+        if project_downsampled_diffraction_patterns_seen_thus_far and (new_batch_number + 1) % num_iters_to_project_downsampled_diffraction_patterns_seen_thus_far == 0:
+
+            num_downsampled_diffraction_patterns_seen_thus_far = (new_batch_number + 1) * num_downsampled_diffraction_patterns_to_fit_per_batch
+            downsampled_diffraction_patterns_seen_thus_far = downsampled_diffraction_patterns[:num_downsampled_diffraction_patterns_seen_thus_far].reshape(num_downsampled_diffraction_patterns_seen_thus_far, -1)
+
+            incremental_pca_mean_for_diffraction_patterns_seen_thus_far = incremental_pca.mean_
+            incremental_pca_components_for_diffraction_patterns_seen_thus_far = incremental_pca.components_
 
             tic = time.time()
-            incremental_pca.partial_fit(new_downsampled_diffraction_patterns_batch_to_fit)
+            latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far = np.dot(downsampled_diffraction_patterns_seen_thus_far - incremental_pca_mean_for_diffraction_patterns_seen_thus_far, incremental_pca_components_for_diffraction_patterns_seen_thus_far.T)
             toc = time.time()
-            time_taken_to_update_incremental_pca_with_new_batch = toc - tic
+            time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far = toc - tic
             
-            time_taken_to_update_incremental_pca_with_new_batch_file = os.path.join(incremental_pca_results_dir, "incremental-pca-time-taken-to-update-incremental-pca-with-new-batch-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
-            np.save(time_taken_to_update_incremental_pca_with_new_batch_file, time_taken_to_update_incremental_pca_with_new_batch)
+            time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far_file = os.path.join(incremental_pca_results_dir, "incremental-pca-time-taken-to-project-downsampled-diffraction-patterns-seen-thus-far-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
+            np.save(time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far_file, time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far)
             
             if verbose_output:
-                print("Save time_taken_to_update_incremental_pca_with_new_batch={:.4f} to: {}".format(time_taken_to_update_incremental_pca_with_new_batch, time_taken_to_update_incremental_pca_with_new_batch_file))    
+                print("Saved time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far={:.4f} to: {}".format(time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far, time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far_file))
 
-            #
-            if not verbose_output:
-                if convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far is not None:
-                    progress_bar_for_num_batches_of_downsampled_diffraction_patterns_processed.set_postfix_str("convergence measure={:.4f}".format(np.asscalar(convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far)), refresh=False)
-                
-                progress_bar_for_num_batches_of_downsampled_diffraction_patterns_processed.update(1)
-            #
+        if measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far:
 
-            if save_incremental_pca_model and (new_batch_number + 1) % num_iters_to_save_incremental_pca_model == 0:
+            if option_for_measuring_convergence == "meanSquaredReconstructionErrorForDiffractionPatternsSeenThusFarUsingLastNIters":
 
-                incremental_pca_model_file = os.path.join(incremental_pca_results_dir, "incremental-pca-incremental-pca-model-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.pkl".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
-                
-                with open(incremental_pca_model_file, 'wb') as incremental_pca_model_file_handle:
-                    pickle.dump(incremental_pca, incremental_pca_model_file_handle)
+                if (new_batch_number + 1) % num_iters_to_measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far == 0 and (new_batch_number + 1) >= num_previous_downsampled_diffraction_pattern_batches_to_consider_for_mean_square_reconstruction_error_convergence_measure:
 
-                if verbose_output:
-                    print("Saved incremental_pca_model to: {}".format(incremental_pca_model_file))
+                    num_downsampled_diffraction_patterns_seen_thus_far = (new_batch_number + 1) * num_downsampled_diffraction_patterns_to_fit_per_batch
 
-            if project_downsampled_diffraction_patterns_seen_thus_far and (new_batch_number + 1) % num_iters_to_project_downsampled_diffraction_patterns_seen_thus_far == 0:
-                
-                num_downsampled_diffraction_patterns_seen_thus_far = (new_batch_number + 1) * num_downsampled_diffraction_patterns_to_fit_per_batch
-                downsampled_diffraction_patterns_seen_thus_far = downsampled_diffraction_patterns[:num_downsampled_diffraction_patterns_seen_thus_far].reshape(num_downsampled_diffraction_patterns_seen_thus_far, -1)
-                
-                incremental_pca_mean_for_diffraction_patterns_seen_thus_far = incremental_pca.mean_
-                incremental_pca_components_for_diffraction_patterns_seen_thus_far = incremental_pca.components_
+                    all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters = downsampled_diffraction_patterns[num_downsampled_diffraction_patterns_seen_thus_far - num_previous_downsampled_diffraction_pattern_batches_to_consider_for_mean_square_reconstruction_error_convergence_measure * num_downsampled_diffraction_patterns_to_fit_per_batch:num_downsampled_diffraction_patterns_seen_thus_far].reshape(num_previous_downsampled_diffraction_pattern_batches_to_consider_for_mean_square_reconstruction_error_convergence_measure * num_downsampled_diffraction_patterns_to_fit_per_batch, -1)
 
-                tic = time.time()
-                latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far = np.dot(downsampled_diffraction_patterns_seen_thus_far - incremental_pca_mean_for_diffraction_patterns_seen_thus_far, incremental_pca_components_for_diffraction_patterns_seen_thus_far.T)
-                toc = time.time()
-                time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far = toc - tic
-                
-                time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far_file = os.path.join(incremental_pca_results_dir, "incremental-pca-time-taken-to-project-downsampled-diffraction-patterns-seen-thus-far-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
-                np.save(time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far_file, time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far)
-                
-                if verbose_output:
-                    print("Saved time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far={:.4f} to: {}".format(time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far, time_taken_to_project_downsampled_diffraction_patterns_seen_thus_far_file))
-                
-            if measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far:
+                    incremental_pca_mean_for_diffraction_patterns_seen_thus_far = incremental_pca.mean_
+                    incremental_pca_components_for_diffraction_patterns_seen_thus_far = incremental_pca.components_
+
+                    tic = time.time()
+
+                    projection_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters = np.dot(all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters - incremental_pca_mean_for_diffraction_patterns_seen_thus_far, incremental_pca_components_for_diffraction_patterns_seen_thus_far.T)
+
+                    # convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far = 0.0
+                    # for all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters_index in range(num_previous_downsampled_diffraction_pattern_batches_to_consider_for_mean_square_reconstruction_error_convergence_measure * num_downsampled_diffraction_patterns_to_fit_per_batch):
+                    #     incremental_pca_reconstruction_for_downsampled_diffraction_pattern_i = np.dot(projection_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters[all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters_index, :], incremental_pca_components_for_diffraction_patterns_seen_thus_far) + incremental_pca_mean_for_diffraction_patterns_seen_thus_far
+                    #     convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far += ((incremental_pca_reconstruction_for_downsampled_diffraction_pattern_i - all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters[all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters_index, :]) ** 2).sum()
+
+                    # convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far /= num_previous_downsampled_diffraction_pattern_batches_to_consider_for_mean_square_reconstruction_error_convergence_measure * num_downsampled_diffraction_patterns_to_fit_per_batch * downsampled_diffraction_pattern_height * downsampled_diffraction_pattern_width
+
+                    incremental_pca_reconstruction_for_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters = np.dot(projection_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters, incremental_pca_components_for_diffraction_patterns_seen_thus_far) + incremental_pca_mean_for_diffraction_patterns_seen_thus_far
+
+                    convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far = ((incremental_pca_reconstruction_for_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters - all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters) ** 2).mean()
+
+                    toc = time.time()
+                    time_taken_to_compute_incremental_pca_mean_squared_reconstruction_error_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters = toc - tic
+                    time_taken_to_compute_incremental_pca_mean_squared_reconstruction_error_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters_file = os.path.join(incremental_pca_results_dir, "time-taken-to-compute-reconstruction-mse-for-downsampled-diffraction-patterns-seen-usings-last-n-iters-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
+                    np.save(time_taken_to_compute_incremental_pca_mean_squared_reconstruction_error_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters_file, time_taken_to_compute_incremental_pca_mean_squared_reconstruction_error_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters)
+
+                    if verbose_output:
+                        print("Saved time_taken_to_compute_incremental_pca_mean_squared_reconstruction_error_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters={:.4f} to: {}".format(time_taken_to_compute_incremental_pca_mean_squared_reconstruction_error_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters, time_taken_to_compute_incremental_pca_mean_squared_reconstruction_error_for_all_downsampled_diffraction_patterns_seen_thus_far_for_last_n_iters_file))
+
+                    incremental_pca_mean_squared_reconstruction_error_for_diffraction_patterns_seen_thus_far_using_last_n_iters_file = os.path.join(incremental_pca_results_dir, "incremental-pca-reconstruction-mse-for-downsampled-diffraction-patterns-seen-using-last-n-iters-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
+                    np.save(incremental_pca_mean_squared_reconstruction_error_for_diffraction_patterns_seen_thus_far_using_last_n_iters_file, convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far)
+
+                    if verbose_output:
+                        print("Saved incremental_pca_mean_squared_reconstruction_error_for_diffraction_patterns_seen_thus_far_using_last_n_iters={:.4f} to: {}".format(convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far, incremental_pca_mean_squared_reconstruction_error_for_diffraction_patterns_seen_thus_far_using_last_n_iters_file))
+
+            elif option_for_measuring_convergence == "jensenShannonDivergenceForDiffractionPatternsSeenThusFar":
 
                 if (new_batch_number + 1) == num_iters_to_measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far:
 
@@ -192,7 +232,7 @@ def main():
                     previous_incremental_pca_components_for_diffraction_patterns_seen_thus_far = incremental_pca.components_
                     
                     previous_projection_for_all_downsampled_diffraction_patterns_seen_thus_far = np.dot(all_downsampled_diffraction_patterns_seen_thus_far - previous_incremental_pca_mean_for_diffraction_patterns_seen_thus_far, previous_incremental_pca_components_for_diffraction_patterns_seen_thus_far.T)
-                    
+ 
                     previous_kernel_density_estimate_for_all_downsampled_diffraction_patterns_seen_thus_far = KernelDensity(kernel="gaussian", bandwidth=0.2).fit(previous_projection_for_all_downsampled_diffraction_patterns_seen_thus_far)
 
                 elif (new_batch_number + 1) % num_iters_to_measure_convergence_for_downsampled_diffraction_patterns_seen_thus_far == 0:
@@ -215,7 +255,7 @@ def main():
                     
                     toc = time.time()
                     time_taken_to_compute_convergence_measure_using_all_downsampled_diffraction_patterns_seen_thus_far = toc - tic
-                    time_taken_to_compute_convergence_measure_using_all_downsampled_diffraction_patterns_seen_thus_far_file = os.path.join(incremental_pca_results_dir, "incremental-pca-time-taken-to-compute-convergence-measure-using-all-downsampled-diffraction-patterns-seen-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
+                    time_taken_to_compute_convergence_measure_using_all_downsampled_diffraction_patterns_seen_thus_far_file = os.path.join(incremental_pca_results_dir, "time-taken-to-compute-convergence-measure-using-all-downsampled-diffraction-patterns-seen-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number={}.npy".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, new_batch_number + 1))
                     np.save(time_taken_to_compute_convergence_measure_using_all_downsampled_diffraction_patterns_seen_thus_far_file, time_taken_to_compute_convergence_measure_using_all_downsampled_diffraction_patterns_seen_thus_far)
                     
                     if verbose_output:
@@ -234,20 +274,17 @@ def main():
                     
                     previous_kernel_density_estimate_for_all_downsampled_diffraction_patterns_seen_thus_far = current_kernel_density_estimate_for_all_downsampled_diffraction_patterns_seen_thus_far
 
-                    if convergence_measure_for_downsampled_diffraction_patterns_seen_thus_far < minimum_convergence_measure_to_start_flagging_downsampled_diffraction_pattern_outliers:
 
-                        # batch_number_converged = new_batch_number
-                        new_batch_number += 1
+            else:
 
-                        break
+                raise Exception("[optionForMeasuringConvergence] not recognized or defined. Please use one of the following: [meanSquaredReconstructionErrorForDiffractionPatternsSeenThusFarUsingLastNIters] or [jensenShannonDivergenceForDiffractionPatternsSeenThusFar]")
 
-            new_batch_number += 1
+        new_batch_number += 1
 
-    #
     batch_number_converged = new_batch_number - 1
-    #
 
     num_downsampled_diffraction_patterns_seen_thus_far = new_batch_number * num_downsampled_diffraction_patterns_to_fit_per_batch
+
     downsampled_diffraction_patterns_seen_thus_far = downsampled_diffraction_patterns[:num_downsampled_diffraction_patterns_seen_thus_far].reshape(num_downsampled_diffraction_patterns_seen_thus_far, -1)
 
     incremental_pca_mean_for_diffraction_patterns_seen_thus_far = incremental_pca.mean_
@@ -255,14 +292,12 @@ def main():
     
     latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far = np.dot(downsampled_diffraction_patterns_seen_thus_far - incremental_pca_mean_for_diffraction_patterns_seen_thus_far, incremental_pca_components_for_diffraction_patterns_seen_thus_far.T)
 
-    #
     latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file = os.path.join(incremental_pca_results_dir, "latent-space-projection-for-downsampled-diffraction-patterns-seen-thus-far-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number_converged={}.hdf5".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, batch_number_converged + 1))
     latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_key = "latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far"
 
     latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle = h5.File(latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file, 'w')
     latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle.create_dataset(latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_key, (num_downsampled_diffraction_patterns_seen_thus_far, num_latent_dims), dtype='f', data=latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far)
     latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle.close()
-    #
 
     elliptic_envelope_for_outlier_prediction = EllipticEnvelope(random_state=13).fit(latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far)
     elliptic_envelope_outlier_predictions_for_downsampled_diffraction_patterns_seen_thus_far = elliptic_envelope_for_outlier_prediction.predict(latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far)
@@ -276,7 +311,7 @@ def main():
     elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far[elliptic_envelope_single_hit_indices_for_downsampled_diffraction_patterns_seen_thus_far] = True
     elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far[elliptic_envelope_outlier_indices_for_downsampled_diffraction_patterns_seen_thus_far] = False
 
-    elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far_h5_file = os.path.join(incremental_pca_results_dir, "elliptic-envelope-outlier-predictions-for-downsampled-diffraction-patterns-seen-thus-far-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number_converged={}.hdf5".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, batch_number_converged + 1))
+    elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far_h5_file = os.path.join(incremental_pca_results_dir, "elliptic-envelope-outlier-predictions-for-downsampled-diffraction-patterns-seen-dataset_name={}-downsampled_shape={}x{}-num_diffraction_patterns={}-batch_size={}-batch_number_converged={}.hdf5".format(dataset_name, downsampled_diffraction_pattern_height, downsampled_diffraction_pattern_width, num_downsampled_diffraction_patterns, num_downsampled_diffraction_patterns_to_fit_per_batch, batch_number_converged + 1))
     elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far_h5_key = "elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far"
     
     elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle = h5.File(elliptic_envelope_outlier_prediction_mask_for_downsampled_diffraction_patterns_seen_thus_far_h5_file, 'w')
@@ -285,12 +320,11 @@ def main():
 
     while new_batch_number < num_batches_of_downsampled_diffraction_patterns:
 
-        #
         num_downsampled_diffraction_patterns_seen_thus_far = num_downsampled_diffraction_patterns_seen_thus_far + num_downsampled_diffraction_patterns_to_fit_per_batch
-        #
+
         new_downsampled_diffraction_patterns_batch_to_flag_outliers = downsampled_diffraction_patterns[new_batch_number * num_downsampled_diffraction_patterns_to_fit_per_batch : (new_batch_number + 1) * num_downsampled_diffraction_patterns_to_fit_per_batch].reshape((num_downsampled_diffraction_patterns_to_fit_per_batch, -1))
 
-        if new_batch_number != batch_number_converged and (new_batch_number + 1) % num_iters_to_update_latent_space_after_convergence == 0:
+        if new_batch_number > batch_number_converged + 1 and (new_batch_number + 1) % num_iters_to_update_latent_space_after_convergence == 0:
             
             incremental_pca.partial_fit(new_downsampled_diffraction_patterns_batch_to_flag_outliers)
 
@@ -309,7 +343,6 @@ def main():
 
             latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far = np.concatenate((latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far, latent_space_projection_of_new_downsampled_diffraction_patterns_batch_to_flag_outliers))
             
-            #
             latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle = h5.File(latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file, 'r+')
 
             latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far = latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle[latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_key][:]
@@ -317,7 +350,6 @@ def main():
             latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle.create_dataset(latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_key, (num_downsampled_diffraction_patterns_seen_thus_far, num_latent_dims), dtype='f', data=latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far)
 
             latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle.close()
-            #
 
             elliptic_envelope_for_outlier_prediction = EllipticEnvelope(random_state=13).fit(latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far)      
 
@@ -325,7 +357,6 @@ def main():
             
             latent_space_projection_of_new_downsampled_diffraction_patterns_batch_to_flag_outliers = np.dot(new_downsampled_diffraction_patterns_batch_to_flag_outliers - incremental_pca_mean_for_diffraction_patterns_seen_thus_far, incremental_pca_components_for_diffraction_patterns_seen_thus_far.T)
 
-            #
             latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far = np.concatenate((latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far, latent_space_projection_of_new_downsampled_diffraction_patterns_batch_to_flag_outliers))
             
             latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle = h5.File(latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file, 'r+')
@@ -335,7 +366,6 @@ def main():
             latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle.create_dataset(latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_key, (num_downsampled_diffraction_patterns_seen_thus_far, num_latent_dims), dtype='f', data=latent_space_projection_updated_with_downsampled_diffraction_patterns_seen_thus_far)
 
             latent_space_projection_for_downsampled_diffraction_patterns_seen_thus_far_h5_file_handle.close()
-            #
 
         elliptic_envelope_outlier_predictions_for_new_downsampled_diffraction_patterns_batch_to_flag_outliers = elliptic_envelope_for_outlier_prediction.predict(latent_space_projection_of_new_downsampled_diffraction_patterns_batch_to_flag_outliers)
 
@@ -361,7 +391,7 @@ def main():
             progress_bar_for_num_batches_of_downsampled_diffraction_patterns_processed.update(1)
 
         new_batch_number += 1
-    
+
     if not verbose_output:
         progress_bar_for_num_batches_of_downsampled_diffraction_patterns_processed.close()
 

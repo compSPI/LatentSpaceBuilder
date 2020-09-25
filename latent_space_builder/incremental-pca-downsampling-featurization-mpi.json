@@ -7,6 +7,38 @@
         "downsampledDiffractionPatternTargetWidth": 128,
         "numDiffractionPatternsToDownsample": 10000
     },
+    "3los-10K-mixed-hit-99":
+    {
+        "diffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-99/dataset/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-99/dataset/downsample-128x128/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternTargetHeight": 128,
+        "downsampledDiffractionPatternTargetWidth": 128,
+        "numDiffractionPatternsToDownsample": 10000
+    },
+    "3los-10K-mixed-hit-95":
+    {
+        "diffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-95/dataset/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-95/dataset/downsample-128x128/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternTargetHeight": 128,
+        "downsampledDiffractionPatternTargetWidth": 128,
+        "numDiffractionPatternsToDownsample": 10000
+    },
+    "3los-10K-mixed-hit-90":
+    {
+        "diffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-90/dataset/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-90/dataset/downsample-128x128/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternTargetHeight": 128,
+        "downsampledDiffractionPatternTargetWidth": 128,
+        "numDiffractionPatternsToDownsample": 10000
+    },
+    "3los-10K-mixed-hit-80":
+    {
+        "diffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-80/dataset/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3los-10K-mixed-hit-80/dataset/downsample-128x128/cspi_synthetic_dataset_diffraction_patterns_3los-10K-mixed-hit_uniform_quat_dataset-size=10000_diffraction-pattern-shape=1024x1040.hdf5",
+        "downsampledDiffractionPatternTargetHeight": 128,
+        "downsampledDiffractionPatternTargetWidth": 128,
+        "numDiffractionPatternsToDownsample": 10000
+    },
     "3iyf-100K-mixed-hit-99":
     {
         "diffractionPatternsH5File": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-99/dataset/cspi_synthetic_dataset_diffraction_patterns_3iyf-100K-mixed-hit_uniform_quat_dataset-size=100000_diffraction-pattern-shape=1024x1040.hdf5",
