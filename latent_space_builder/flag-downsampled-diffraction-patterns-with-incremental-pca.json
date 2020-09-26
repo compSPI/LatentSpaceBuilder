@@ -44,20 +44,19 @@
 		"downsampledDiffractionPatternWidth": 128,
 		"numDiffractionPatterns": 100000,
 		"numDownsampledDiffractionPatternsToFitPerBatch": 10,
-		"incrementalPcaResultsDir": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-99/dataset/incremental-pca/09-24-20/run-5",
+		"incrementalPcaResultsDir": "/reg/data/ana03/scratch/deebanr/3iyf-100K-mixed-hit-99/dataset/incremental-pca/09-25-20/run-1",
 		"saveIncrementalPcaModel": true,
 		"numItersToSaveIncrementalPcaModel": 10,
 		"projectDownsampledDiffractionPatternsSeenThusFar": false,
 		"numItersToProjectDownsampledDiffractionPatternsSeenThusFar": 10,
 		"measureConvergenceForDownsampledDiffractionPatternsSeenThusFar": true,
 		"numItersToMeasureConvergenceForDownsampledDiffractionPatternsSeenThusFar": 10,
-        "optionForMeasuringConvergence": "meanSquaredReconstructionErrorForDiffractionPatternsSeenThusFarUsingLastNIters",
-        "numPreviousDownsampledDiffractionPatternBatchesToConsiderForMeanSquareReconstructionErrorConvergenceMeasure": 200,
+        "optionForMeasuringConvergence": "meanSquaredReconstructionErrorForDiffractionPatternsSeenThusFar",
 		"minimumConvergenceMeasureToStartFlaggingDownsampledDiffractionPatternOutliers": 0.0,
 		"numItersToUpdateLatentSpaceAfterConvergence": 10,
 		"numLatentDims": 3,
-		"verboseOutput": false,
-		"newBatchNumberToLoadIncrementalPcaModel": null
+		"verboseOutput": true,
+		"newBatchNumberToLoadIncrementalPcaModel": 960
 	},
     "3iyf-10K-mixed-hit-99-mean-square-reconstruction-error":
 	{
